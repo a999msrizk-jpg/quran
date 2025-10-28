@@ -138,6 +138,27 @@
         font-size: 0.8em;
       }
     }
+
+        /* WhatsApp Floating Button */
+    .whatsapp-widget {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1000;
+    }
+    
+    .whatsapp-widget img {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .whatsapp-widget img:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+    }
   </style>
 </head>
 <body>
@@ -155,9 +176,12 @@
       📊 View Sheet (Admin)
     </a>
   </div>
-
-  <footer>
-    Made with ❤️ for <a href="#">Quran progress tracking</a>.
-  </footer>
+  <div class="whatsapp-widget">
+  <a href="https://chat.whatsapp.com/GRjJzmLwn5bKUPl9m4yKcj" target="_blank" title="Join our WhatsApp Group">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp Group">
+  </a>
+</div>
+  
 </body>
 </html>
+
