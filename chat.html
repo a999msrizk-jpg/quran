@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Private Quran Chat</title>
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: #e3f2fd;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+  header {
+    background: #1976d2;
+    color: white;
+    padding: 12px;
+    text-align: center;
+    font-weight: bold;
+  }
+  #messages {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .msg {
+    background: #fff;
+    padding: 8px 12px;
+    border-radius: 10px;
+    max-width: 75%;
+    word-wrap: break-word;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  .self {
+    align-self: flex-end;
+    background: #bbdefb;
+  }
+  form {
+    display: flex;
+    padding: 10px;
+    background: white;
+    border-top: 1px solid #ccc;
+  }
+  input {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    background: #f1f1f1;
+  }
+  button {
+    margin-left: 8px;
+    background: #1976d2;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+  }
+</style>
+</head>
+<body>
+
+<header>📖 Quran Private Chat</header>
+
+<div id="messages"></div>
+
+<form id="chatForm">
+  <input id="msgInput" placeholder="Type a message..." autocomplete="off">
+  <button type="submit">Send</button>
+</form>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // 🔧 Replace with your Supabase credentials
+  const SUPABASE_URL = 'https://YOUR_PROJECT_ID.supabase.co';
+  const SUPABASE_ANON_KEY = 'YOUR_PUBLIC_ANON_KEY';
+
+  const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const username = prompt("Enter your name:");
+  const msgInput = document.getElementById("msgInput");
+  const msgList = document.getElementById("messages");
+  const form = document.getElementById("chatForm");
+
+  async function loadMessages() {
+    const { data } = await client.from('messages').select('*').order('inserted_at', { ascending: true });
+    msgList.innerHTML = '';
+    data.forEach(addMessage);
+    msgList.scrollTop = msgList.scrollHeight;
+  }
+
+  function addMessage(msg) {
+    const div = document.createElement("div");
+    div.classList.add("msg");
+    if (msg.username === username) div.classList.add("self");
+    div.textContent = `${msg.username}: ${msg.text}`;
+    msgList.appendChild(div);
+  }
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const text = msgInput.value.trim();
+    if (!text) return;
+    await client.from('messages').insert([{ username, text }]);
+    msgInput.value = '';
+  });
+
+  // Subscribe for realtime updates
+  client
+    .channel('realtime:messages')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
+      addMessage(payload.new);
+      msgList.scrollTop = msgList.scrollHeight;
+    })
+    .subscribe();
+
+  loadMessages();
+</script>
+
+</body>
+</html>
